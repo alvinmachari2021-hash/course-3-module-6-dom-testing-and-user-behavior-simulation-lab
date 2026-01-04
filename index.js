@@ -1,105 +1,84 @@
-// Step 1: Simulate User Behavior
-// - Add event listeners for button clicks and form submissions.
-// - Use JavaScript to dynamically update the DOM based on user actions.
+// index.js
 
-// Step 2: DOM Manipulation Functions
-// - Implement functions to add, update, and remove DOM elements.
-// - Ensure all elements are dynamically created with appropriate attributes and content.
-
-// Step 3: Error Handling
-// - Display error messages in the DOM for invalid inputs or missing elements.
-// - Create reusable functions to handle common error cases.
-
-// Step 4: Reusable Utilities
-// - Create modular utility functions, such as createElement(tag, attributes).
-// - Ensure all functions follow DRY principles for maintainability.
-
-// Utility function (Step 4: Reusable Utilities)
-function createElement(tag, attributes = {}, textContent = "") {
-  const el = document.createElement(tag);
-  Object.entries(attributes).forEach(([key, value]) => {
-    el.setAttribute(key, value);
-  });
-  if (textContent) el.textContent = textContent;
-  return el;
+// Add a message to the DOM
+function addMessageToDOM(text) {
+  let container = document.getElementById('dynamic-content');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'dynamic-content';
+    document.body.appendChild(container);
+  }
+  const msg = document.createElement('p');
+  msg.className = 'message';
+  msg.textContent = text;
+  container.appendChild(msg);
+  return msg;
 }
 
-// Step 2: DOM Manipulation Functions
-function addMessageToDOM(message) {
-  const dynamicContent = document.getElementById("dynamic-content");
-  const p = createElement("p", { class: "message" }, message);
-  dynamicContent.appendChild(p);
-  return p;
-}
-
-function removeLastMessage() {
-  const dynamicContent = document.getElementById("dynamic-content");
-  if (dynamicContent.lastElementChild) {
-    dynamicContent.removeChild(dynamicContent.lastElementChild);
+// Remove an element from the DOM by id
+function removeElementFromDOM(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.remove();
   }
 }
 
-function updateMessage(message) {
-  const dynamicContent = document.getElementById("dynamic-content");
-  if (dynamicContent.firstElementChild) {
-    dynamicContent.firstElementChild.textContent = message;
-  } else {
-    addMessageToDOM(message);
+// Update the first message in the DOM
+function updateMessage(newText) {
+  const container = document.getElementById('dynamic-content');
+  if (container) {
+    const first = container.querySelector('.message');
+    if (first) {
+      first.textContent = newText;
+    }
   }
 }
 
-// Step 3: Error Handling
-function showError(message) {
-  const errorBox = document.getElementById("error-message");
-  errorBox.textContent = message;
-  errorBox.classList.remove("hidden");
+// Simulate a button click and update the DOM
+function simulateClick(containerId, message) {
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement('div');
+    container.id = containerId;
+    document.body.appendChild(container);
+  }
+  container.textContent = message;
 }
 
-function clearError() {
-  const errorBox = document.getElementById("error-message");
-  errorBox.textContent = "";
-  errorBox.classList.add("hidden");
-}
+// Handle form submission and update the DOM
+function handleFormSubmit(formId, dynamicContentId) {
+  const form = document.getElementById(formId);
+  const input = document.getElementById('user-input');
+  const dynamicContent = document.getElementById(dynamicContentId);
 
-// Step 1: Simulate User Behavior
-function handleClick() {
-  addMessageToDOM("Button was clicked!");
-}
+  let errorMessage = document.getElementById('error-message');
+  if (!errorMessage) {
+    errorMessage = document.createElement('div');
+    errorMessage.id = 'error-message';
+    errorMessage.classList.add('hidden');
+    document.body.appendChild(errorMessage);
+  }
 
-function handleFormSubmit(event) {
-  event.preventDefault();
-  const input = document.getElementById("user-input");
-  const value = input.value.trim();
+  const value = (input && input.value ? input.value.trim() : '');
 
   if (!value) {
-    showError("Error: Input cannot be empty.");
+    errorMessage.textContent = 'Input cannot be empty';
+    errorMessage.classList.remove('hidden');
     return;
   }
 
-  clearError();
-  addMessageToDOM(`You submitted: ${value}`);
-  input.value = "";
+  errorMessage.textContent = '';
+  errorMessage.classList.add('hidden');
+
+  if (dynamicContent) {
+    dynamicContent.textContent = value;
+  }
 }
 
-// Wire up event listeners
-document.addEventListener("DOMContentLoaded", () => {
-  document
-    .getElementById("simulate-click")
-    .addEventListener("click", handleClick);
-
-  document
-    .getElementById("user-form")
-    .addEventListener("submit", handleFormSubmit);
-});
-
-// Export functions for testing (CommonJS style for Jest)
 module.exports = {
-  createElement,
   addMessageToDOM,
-  removeLastMessage,
+  removeElementFromDOM,
   updateMessage,
-  showError,
-  clearError,
-  handleClick,
-  handleFormSubmit
+  simulateClick,
+  handleFormSubmit,
 };
